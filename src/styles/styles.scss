@@ -1,0 +1,52 @@
+body {
+    padding: 0;
+    margin: 0;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.section {
+    width: 1200px;
+    max-width: 98%;
+    margin: auto;
+    text-align: center;
+}
+
+.pagination {
+    margin-top: 20px;
+    display: inline-flex;
+}
+
+.pagination__button,
+.pagination__button--left,
+.pagination__button--right {
+    border: 0;
+    border-radius: 4px;
+    width: 40px;
+    height: 40px;
+    margin-left: 2px;
+    margin-right: 2px;
+}
+
+.pagination__button:active {
+    background: #333;
+}
+
+.arrow__left,
+.arrow__right {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-top: 3px solid #000;
+    border-right: 3px solid #000;
+}
+
+.arrow__left {
+    transform: translate(3px, 0px) rotate(225deg);
+}
+
+.arrow__right {
+    transform: translate(-3px, 0px) rotate(45deg);
+}
