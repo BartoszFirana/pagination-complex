@@ -1,6 +1,7 @@
 export default class Pagination {
 
     maxPage = 3;
+    pageList = [];
     currentPage = null;
 
     constructor(basicNode) {
@@ -18,10 +19,11 @@ export default class Pagination {
     }
 
     render() {
+        console.log(this.pageList);
         this.basicNode.innerHTML =
             `
             <button class="pagination__button"><span class="arrow__left"></span></button>
-            ${[0, 1, 2].map((page, index) => (`<button class="pagination__button">${index}</button>`)).join("")}
+            ${this.pageList.map((page, index) => (`<button class="pagination__button">${index}</button>`)).join("")}
             <button class="pagination__button"><span class="arrow__right"></span></button>
             `
     }
@@ -56,9 +58,15 @@ export default class Pagination {
 
     onInputHandler = (e) => {
         const target = e.target.className;
-        if (target === "maxpage__input") {
-            this.currentPage = e.target.value;
+        if (target === "maxpage__input" && e.target.value > 0) {
+            this.maxPage = Number(e.target.value);
+        } if (e.target.value < 1) {
+            this.maxPage = 1;
+            e.target.value = this.maxPage;
         }
+        this.pageList = [...Array(this.maxPage).keys()]
+
+        this.render();
     }
 
 }
