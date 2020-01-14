@@ -20,12 +20,33 @@ export default class Pagination {
 
     render() {
         console.log(this.pageList);
-        this.basicNode.innerHTML =
-            `
-            <button class="pagination__button"><span class="arrow__left"></span></button>
-            ${this.pageList.map((page, index) => (`<button class="pagination__button">${index}</button>`)).join("")}
-            <button class="pagination__button"><span class="arrow__right"></span></button>
-            `
+
+        const btnLeft = [`<span class="arrow__left"></span>`];
+        const btnRight = [`<span class="arrow__right"></span>`];
+
+        const slimPagination = [btnLeft[0], ...this.pageList, btnRight[0]];
+        const mediumPagination = [btnLeft[0], `...`, ...this.pageList, `...`, btnRight[0]];
+
+        if (this.maxPage <= 5) {
+            this.basicNode.innerHTML =
+                `
+                ${renderByMap(slimPagination)}
+                `;
+        }
+
+        if (this.maxPage > 5) {
+            this.basicNode.innerHTML =
+                `
+                ${renderByMap(mediumPagination)}
+                `;
+        }
+
+        function renderByMap(sizePagination) {
+            return sizePagination.map((page, index) => (
+                `<button class="pagination__button">${page}</button>`
+            )).join("")
+        }
+
     }
 
     setDomElements() {
