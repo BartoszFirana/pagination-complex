@@ -1,6 +1,6 @@
 export default class Pagination {
 
-    maxPage = 3;
+    maxPage = null;
     pageList = [];
     currentPage = null;
 
@@ -12,6 +12,8 @@ export default class Pagination {
 
         this.setDomElements();
 
+        this.setMaxPageValue()
+
         this.render();
 
         this.bindEventHandlers();
@@ -19,7 +21,6 @@ export default class Pagination {
     }
 
     render() {
-        console.log(this.pageList);
 
         const btnLeft = [`<span class="arrow__left"></span>`];
         const btnRight = [`<span class="arrow__right"></span>`];
@@ -55,6 +56,18 @@ export default class Pagination {
 
     }
 
+    setMaxPageValue() {
+        if (localStorage.getItem('maxPageInput') !== null) {
+            this.maxPage = localStorage.getItem('maxPageInput');
+        } if (localStorage.getItem('maxPageInput') === null) {
+            this.maxPage = 3;
+        }
+
+        this.maxPageInput.value = this.maxPage;
+
+        this.setPageList(this.maxPage);
+    }
+
     setPageParam() {
 
         const url = new URL(window.location);
@@ -69,6 +82,14 @@ export default class Pagination {
         }
     }
 
+    setLocalStorage(maxPage) {
+        localStorage.setItem('maxPageInput', maxPage);
+    }
+
+    setPageList(value) {
+        this.pageList = [...Array(Number(value)).keys()]
+    }
+
     bindEventHandlers() {
         this.maxPageInput.addEventListener('input', this.onInputHandler);
     }
@@ -78,14 +99,21 @@ export default class Pagination {
     }
 
     onInputHandler = (e) => {
+
         const target = e.target.className;
+
         if (target === "maxpage__input" && e.target.value > 0) {
             this.maxPage = Number(e.target.value);
         } if (e.target.value < 1) {
             this.maxPage = 1;
             e.target.value = this.maxPage;
         }
-        this.pageList = [...Array(this.maxPage).keys()]
+
+        this.setPageList(this.maxPage);
+
+        this.setLocalStorage(this.maxPage);
+
+        this.setMaxPageValue()
 
         this.render();
     }
