@@ -28,10 +28,17 @@ body {
     height: 40px;
     margin-left: 2px;
     margin-right: 2px;
+    cursor: pointer;
 }
 
-.pagination__button:active {
-    background: #333;
+.pagination__button--active {
+    background: #fe5269;
+    color: white;
+}
+
+.pagination__button:disabled {
+    opacity: 0.5;
+    cursor: default;
 }
 
 .arrow__left,

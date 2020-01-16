@@ -23,20 +23,24 @@ export default class Pagination {
 
     render() {
 
-        const btnLeft = `<button class="pagination__button"><span class="arrow__left"></span></button>`;
-        const btnRight = `<button class="pagination__button"><span class="arrow__right"></span></button>`;
+        console.log(this.currentPageState, this.pageListState);
+
+        const lastPage = (this.pageListState.length - 1).toString();
+
+        const btnLeft = `<button class="pagination__button" ${this.currentPageState === "0" ? "disabled" : ""}><span class="arrow__left"></span></button>`;
+        const btnRight = `<button class="pagination__button" ${this.currentPageState === lastPage ? "disabled" : ""}><span class="arrow__right"></span></button>`;
 
         this.basicNode.innerHTML =
             `
                 ${btnLeft}
-                ${renderByMap([...this.pageListState])}
+                ${renderByMap(this.pageListState)}
                 ${btnRight}
                 `;
 
         function renderByMap(pageList) {
 
             return pageList.map((page, index) => (
-                `<button class=${page.active === true ? "pagination__button pagination__button--active" : "pagination__button"} data-page-number="${page.number}">${page.number}</button>`
+                `<button class="${page.active === true ? "pagination__button pagination__button--active" : "pagination__button"}" data-page-number="${page.number}">${page.number}</button>`
             )).join("")
         }
 
@@ -60,6 +64,14 @@ export default class Pagination {
         this.maxPageInputState.value = this.maxPageState;
 
         this.setPageList(this.maxPageState);
+
+        this.setPageActiveButton();
+    }
+
+    setPageActiveButton() {
+
+        this.pageListState[this.currentPageState].active = true;
+
     }
 
     setPageParam(newPageParam) {
@@ -79,9 +91,10 @@ export default class Pagination {
             }
         } if (newPageParam !== undefined) {
 
-            params.set('p', newPageParam);
-            window.location.href = `/?${params.toString()}`;
-
+            if (newPageParam <= this.maxPageState) {
+                params.set('p', newPageParam);
+                window.location.href = `/?${params.toString()}`;
+            }
         }
 
     }
