@@ -1,8 +1,9 @@
 export default class Pagination {
 
-    maxPage = null;
-    pageList = [];
-    currentPage = null;
+    maxPageState = null;
+    pageListState = [];
+    currentPageState = null;
+    paginationState = null;
 
     constructor(basicNode) {
         this.basicNode = basicNode;
@@ -22,29 +23,20 @@ export default class Pagination {
 
     render() {
 
-        const btnLeft = [`<span class="arrow__left"></span>`];
-        const btnRight = [`<span class="arrow__right"></span>`];
+        const btnLeft = `<button class="pagination__button"><span class="arrow__left"></span></button>`;
+        const btnRight = `<button class="pagination__button"><span class="arrow__right"></span></button>`;
 
-        const slimPagination = [btnLeft[0], ...this.pageList, btnRight[0]];
-        const mediumPagination = [btnLeft[0], `...`, ...this.pageList, `...`, btnRight[0]];
-
-        if (this.maxPage <= 5) {
-            this.basicNode.innerHTML =
-                `
-                ${renderByMap(slimPagination)}
+        this.basicNode.innerHTML =
+            `
+                ${btnLeft}
+                ${renderByMap([...this.pageListState])}
+                ${btnRight}
                 `;
-        }
 
-        if (this.maxPage > 5) {
-            this.basicNode.innerHTML =
-                `
-                ${renderByMap(mediumPagination)}
-                `;
-        }
+        function renderByMap(pageList) {
 
-        function renderByMap(sizePagination) {
-            return sizePagination.map((page, index) => (
-                `<button class="pagination__button">${page}</button>`
+            return pageList.map((page, index) => (
+                `<button class=${page.active === true ? "pagination__button pagination__button--active" : "pagination__button"} data-page-number="${page.number}">${page.number}</button>`
             )).join("")
         }
 
@@ -52,68 +44,99 @@ export default class Pagination {
 
     setDomElements() {
 
-        this.maxPageInput = document.querySelector('.maxpage__input');
+        this.maxPageInputState = document.querySelector('.maxpage__input');
+        this.paginationState = document.querySelector('.pagination');
 
     }
 
     setMaxPageValue() {
+
         if (localStorage.getItem('maxPageInput') !== null) {
-            this.maxPage = localStorage.getItem('maxPageInput');
+            this.maxPageState = localStorage.getItem('maxPageInput');
         } if (localStorage.getItem('maxPageInput') === null) {
-            this.maxPage = 3;
+            this.maxPageState = 3;
         }
 
-        this.maxPageInput.value = this.maxPage;
+        this.maxPageInputState.value = this.maxPageState;
 
-        this.setPageList(this.maxPage);
+        this.setPageList(this.maxPageState);
     }
 
-    setPageParam() {
+    setPageParam(newPageParam) {
 
         const url = new URL(window.location);
         const params = new URLSearchParams(url.search);
 
-        if (params.has('p')) {
-            const value = params.get('p');
-            this.currentPage = value;
+        if (newPageParam === undefined) {
+            if (params.has('p')) {
+
+                const value = params.get('p');
+                this.currentPageState = value;
+
+            } if (!params.has('p')) {
+                params.append('p', 1);
+                this.currentPageState = 1;
+            }
+        } if (newPageParam !== undefined) {
+
+            params.set('p', newPageParam);
+            window.location.href = `/?${params.toString()}`;
+
         }
-        if (!params.has('p')) {
-            this.currentPage = 1;
-        }
+
     }
 
     setLocalStorage(maxPage) {
+
         localStorage.setItem('maxPageInput', maxPage);
+
     }
 
     setPageList(value) {
-        this.pageList = [...Array(Number(value)).keys()]
+
+        this.pageListState = Array.from({ length: value }, (v, k) => ({ number: k, active: false }));
+
     }
 
     bindEventHandlers() {
-        this.maxPageInput.addEventListener('input', this.onInputHandler);
+
+        this.maxPageInputState.addEventListener('input', this.onInputHandler);
+        this.paginationState.addEventListener('click', this.onClickHandler);
+
     }
 
     onClickHandler = (e) => {
+
+        const target = e.target.dataset.pageNumber;
+
+        if (target !== null) {
+
+            this.currentPageState = target;
+
+            this.setPageParam(this.currentPageState);
+
+        }
+
+        this.render();
 
     }
 
     onInputHandler = (e) => {
 
-        const target = e.target.className;
+        const target = e.target.className
 
         if (target === "maxpage__input" && e.target.value > 0) {
-            this.maxPage = Number(e.target.value);
+            this.maxPageState = Number(e.target.value);
         } if (e.target.value < 1) {
-            this.maxPage = 1;
-            e.target.value = this.maxPage;
+            this.maxPageState = 1;
+            e.target.value = this.maxPageState;
         }
 
-        this.setPageList(this.maxPage);
+        this.setPageList(this.maxPageState);
 
-        this.setLocalStorage(this.maxPage);
+        this.setLocalStorage(this.maxPageState);
 
-        this.setMaxPageValue()
+        this.setMaxPageValue();
 
         this.render();
     }
