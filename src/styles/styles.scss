@@ -14,6 +14,34 @@ body {
     text-align: center;
 }
 
+.maxpage__form {
+    padding: 20px;
+    text-align: left;
+    padding-left: 30%;
+}
+
+.maxpage__input::-webkit-outer-spin-button,
+.maxpage__input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.maxpage__input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.maxpage__input {
+    background: #f7f7f7;
+    border: 1px solid grey;
+    padding: 10px;
+    border-radius: 15px;
+    color: gray;
+    font-weight: 700;
+    font-size: 1rem;
+    text-align: center;
+    width: 100px;
+}
+
 .pagination {
     margin-top: 20px;
     display: inline-flex;

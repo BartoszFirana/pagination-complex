@@ -23,27 +23,42 @@ export default class Pagination {
 
     render() {
 
-        console.log(this.currentPageState, this.pageListState);
-
         const lastPage = (this.pageListState.length - 1).toString();
 
-        const btnLeft = `<button class="pagination__button" ${this.currentPageState === "0" ? "disabled" : ""}><span class="arrow__left"></span></button>`;
-        const btnRight = `<button class="pagination__button" ${this.currentPageState === lastPage ? "disabled" : ""}><span class="arrow__right"></span></button>`;
+        const btnLeft = `<button data-arrow-button="decrement" class="pagination__button" ${this.currentPageState === "0" ? "disabled" : ""}><span class="arrow__left"></span></button>`;
+        const btnRight = `<button data-arrow-button="increment" class="pagination__button" ${this.currentPageState === lastPage ? "disabled" : ""}><span class="arrow__right"></span></button>`;
+
+        const quickFirstPage = `
+        <button class="pagination__button" data-page-number="${this.pageListState[0].number}">${this.pageListState[0].number}</button>
+        <button class="pagination__button" disabled>...</button>
+        `;
+        const quickLastPage = `
+        <button class="pagination__button" disabled>...</button>
+        <button class="pagination__button" data-page-number="${this.pageListState[Number(lastPage)].number}">${this.pageListState[Number(lastPage)].number}</button>
+        `;
 
         this.basicNode.innerHTML =
             `
                 ${btnLeft}
-                ${renderByMap(this.pageListState)}
+                ${this.currentPageState > 3 ? quickFirstPage : ""}
+                ${renderByMap(this.pageListState, this.currentPageState)}
+                ${this.currentPageState < Number(lastPage) - 3 ? quickLastPage : ""}
                 ${btnRight}
                 `;
 
-        function renderByMap(pageList) {
+        function renderByMap(pageList, currentPage) {
 
-            return pageList.map((page, index) => (
+            currentPage = Number(currentPage);
+
+            const marginLeft = (currentPage < 4 ? 0 : currentPage - 3);
+            const marginRight = (currentPage > (pageList.length - 4) ? pageList.length : currentPage + 4);
+
+            const reduceList = pageList.slice(marginLeft, marginRight);
+
+            return reduceList.map((page, index) => (
                 `<button class="${page.active === true ? "pagination__button pagination__button--active" : "pagination__button"}" data-page-number="${page.number}">${page.number}</button>`
             )).join("")
         }
-
     }
 
     setDomElements() {
@@ -63,9 +78,7 @@ export default class Pagination {
 
         this.maxPageInputState.value = this.maxPageState;
 
-        this.setPageList(this.maxPageState);
-
-        this.setPageActiveButton();
+        this.setPageList();
     }
 
     setPageActiveButton() {
@@ -74,12 +87,12 @@ export default class Pagination {
 
     }
 
-    setPageParam(newPageParam) {
+    setPageParam(newPage) {
 
         const url = new URL(window.location);
         const params = new URLSearchParams(url.search);
 
-        if (newPageParam === undefined) {
+        if (newPage === undefined) {
             if (params.has('p')) {
 
                 const value = params.get('p');
@@ -89,12 +102,13 @@ export default class Pagination {
                 params.append('p', 1);
                 this.currentPageState = 1;
             }
-        } if (newPageParam !== undefined) {
+        } if (newPage !== undefined) {
 
-            if (newPageParam <= this.maxPageState) {
-                params.set('p', newPageParam);
+            if (newPage <= this.maxPageState) {
+                params.set('p', newPage);
                 window.location.href = `/?${params.toString()}`;
             }
+
         }
 
     }
@@ -105,9 +119,11 @@ export default class Pagination {
 
     }
 
-    setPageList(value) {
+    setPageList() {
 
-        this.pageListState = Array.from({ length: value }, (v, k) => ({ number: k, active: false }));
+        this.pageListState = Array.from({ length: this.maxPageState }, (v, k) => ({ number: k, active: false }));
+
+        this.setPageActiveButton()
 
     }
 
@@ -121,6 +137,7 @@ export default class Pagination {
     onClickHandler = (e) => {
 
         const target = e.target.dataset.pageNumber;
+        const arrowBtnTarget = e.target.dataset.arrowButton;
 
         if (target !== null) {
 
@@ -128,6 +145,16 @@ export default class Pagination {
 
             this.setPageParam(this.currentPageState);
 
+        }
+
+        if (arrowBtnTarget) {
+            if (arrowBtnTarget === "decrement") {
+                this.currentPageState = Number(this.currentPageState) - 1;
+            } if (arrowBtnTarget === "increment") {
+                this.currentPageState = Number(this.currentPageState) + 1;
+            }
+
+            this.setPageParam(this.currentPageState);
         }
 
         this.render();
